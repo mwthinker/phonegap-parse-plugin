@@ -13,6 +13,8 @@ import org.json.JSONException;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
+import com.parse.SaveCallback;
+import com.parse.ParseException;
 
 public class ParsePlugin extends CordovaPlugin {
     public static final String TAG = "ParsePlugin";
@@ -69,9 +71,13 @@ public class ParsePlugin extends CordovaPlugin {
     private void initialize(final CallbackContext callbackContext, final JSONArray args) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-            PushService.setDefaultPushCallback(cordova.getActivity(), cordova.getActivity().getClass());
-            ParseInstallation.getCurrentInstallation().saveInBackground();
-            callbackContext.success();
+                ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        PushService.setDefaultPushCallback(cordova.getActivity(), cordova.getActivity().getClass());
+                    }
+                });
+                callbackContext.success();
             }
         });
     }
@@ -120,6 +126,4 @@ public class ParsePlugin extends CordovaPlugin {
             }
         });
     }
-
 }
-
